@@ -7,12 +7,12 @@
   "engines": { "vscode": "^1.80.0" },
   "repository": {
     "type": "git",
-    "url": "https://github.com/VT4JIGMQG/mdtlbl-r.git"
+    "url": "https://github.com/nosbhghggg/mindustry-logic-bang-language-runner.git"
   },
   "bugs": {
-    "url": "https://github.com/VT4JIGMQG/mdtlbl-r/issues"
+    "url": "https://github.com/nosbhghggg/mindustry-logic-bang-language-runner/issues"
   },
-  "homepage": "https://github.com/VT4JIGMQG/mdtlbl-r#readme",
+  "homepage": "https://github.com/nosbhghggg/mindustry-logic-bang-language-runner#readme",
   "categories": ["Other"],
   "activationEvents": [
     "onLanguage:mdtlbl",
