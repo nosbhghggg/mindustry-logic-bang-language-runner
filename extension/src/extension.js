@@ -40,12 +40,9 @@ function getDoc() {
   return ed.document;
 }
 
-function isMlog(doc) { return doc.uri.fsPath.toLowerCase().endsWith(".mlog"); }
-function isMdtlbl(doc) {
-  return doc.languageId === "mdtlbl" || doc.uri.fsPath.toLowerCase().endsWith(".mdtlbl");
-}
-// languageId covers untitled mdtlbl docs; extension covers saved files
-function isCompilable(doc) { return isMlog(doc) || isMdtlbl(doc); }
+const isMlog = d => d.uri.fsPath.toLowerCase().endsWith(".mlog");
+const isMdtlbl = d => d.languageId === "mdtlbl" || d.uri.fsPath.toLowerCase().endsWith(".mdtlbl");
+const isCompilable = d => isMlog(d) || isMdtlbl(d);
 
 function lineStat(src, res) {
   const s = src.split("\n").length, r = res.split("\n").length, d = r - s;
@@ -53,19 +50,15 @@ function lineStat(src, res) {
 }
 
 async function openSide(content, language, msg) {
-  // Use an untitled URI with a real extension so Save As defaults to .mlog/.mdtlbl,
-  // not .txt (plain { content, language } creates extensionless Untitled-N).
   const ext = language === "mdtlbl" ? "mdtlbl" : "mlog";
   const uri = vscode.Uri.parse(`untitled:preview-${Date.now()}.${ext}`);
   let doc = await vscode.workspace.openTextDocument(uri);
   const edit = new vscode.WorkspaceEdit();
   edit.insert(uri, new vscode.Position(0, 0), content);
   await vscode.workspace.applyEdit(edit);
-  if (doc.languageId !== language) {
-    doc = await vscode.languages.setTextDocumentLanguage(doc, language);
-  }
+  if (doc.languageId !== language) doc = await vscode.languages.setTextDocumentLanguage(doc, language);
   await vscode.window.showTextDocument(doc, vscode.ViewColumn.Beside);
-  if (msg) showSuccess(msg);
+  if (msg) flashStatus("ok", msg);
 }
 
 // ---- Compiler resolution ----
@@ -74,7 +67,6 @@ function resolveCompiler() {
   const c = vscode.workspace.getConfiguration("bang");
   const configured = c.get("compilerPath", "");
   if (configured) {
-    // Workspace-level path can be poisoned; reject in untrusted workspaces
     const isWs = c.inspect("compilerPath").workspaceValue !== undefined;
     if (isWs && !vscode.workspace.isTrusted) log(t("security.ignoreWorkspacePath"));
     else if (fs.existsSync(configured)) return configured;
@@ -90,9 +82,7 @@ function resolveCompiler() {
 }
 
 function setCompiler(p, version) {
-  compilerPath = p;
-  compilerReady = true;
-  compilerVersion = version;
+  compilerPath = p; compilerReady = true; compilerVersion = version;
   restoreStatusBaseline();
 }
 
@@ -110,9 +100,7 @@ async function probeCompiler() {
       log(`[probe] not the Bang compiler: ${compilerPath}`);
     }
   } catch (e) {
-    log(e && e.code === "ENOENT"
-      ? `[probe] compiler not found: ${compilerPath}`
-      : `[probe] failed to run ${compilerPath}: ${e && e.message}`);
+    log(e && e.code === "ENOENT" ? `[probe] compiler not found: ${compilerPath}` : `[probe] failed to run ${compilerPath}: ${e && e.message}`);
   }
   restoreStatusBaseline();
 }
@@ -242,28 +230,17 @@ function endFlash() {
   else statusBtn.hide();
 }
 
-function flashStatus(kind, msg) {
+function flashStatus(kind, msg, stat) {
   if (!statusBtn) return;
-  endFlash(); // resolve any in-flight flash first
-  // Temporarily show button on non-target file types so the flash is visible
+  endFlash();
   if (!statusBtnVisible) statusBtn.show();
   const err = kind === "error";
-  statusBtn.text = err ? "$(error) Bang" : "$(check) Bang";
+  statusBtn.text = err ? "$(error) Bang" : `$(check) ${stat || "Bang"}`;
   statusBtn.tooltip = msg || t("status.ready");
-  // backgroundColor only supports error/warning (no green). Success uses green foreground.
-  statusBtn.backgroundColor = err
-    ? new vscode.ThemeColor("statusBarItem.errorBackground")
-    : undefined;
+  statusBtn.backgroundColor = err ? new vscode.ThemeColor("statusBarItem.errorBackground") : undefined;
   statusBtn.color = err ? undefined : new vscode.ThemeColor("charts.green");
   flashTimer = setTimeout(endFlash, 4000);
 }
-
-function showSuccess(msg) {
-  flashStatus("ok", msg);
-  vscode.window.setStatusBarMessage(`$(check) ${msg}`, 4000);
-}
-
-// ---- Activate / UI ----
 
 function activate(ctx) {
   outputChannel = vscode.window.createOutputChannel("Bang Compiler");
@@ -320,7 +297,8 @@ async function autoCompile(doc) {
         return flashStatus("error", t("status.autoSaveFailed"));
       }
     }
-    showSuccess(lineStat(doc.getText(), raw));
+    const s = lineStat(doc.getText(), raw);
+    flashStatus("ok", s, s);
   }, 300);
 }
 
@@ -344,9 +322,10 @@ async function compileToFile(mode, show, save) {
       const outPath = doc.uri.fsPath.replace(/\.mdtlbl$/i, ".mlog");
       try { fs.writeFileSync(outPath, output, "utf8"); }
       catch (e) { return vscode.window.showErrorMessage(t("msg.writeFailed", e.message)); }
-      showSuccess(`${path.basename(outPath)}  ${lineStat(doc.getText(), raw)}`);
+      const s = lineStat(doc.getText(), raw);
+      flashStatus("ok", `${path.basename(outPath)}`, s);
     }
-    // save+show both set: still open preview (do not early-return after save)
+    // keep preview open on save+show
     if (show || untitled) {
       return openSide(output, "mlog",
         (!save || untitled) ? t("msg.previewOnly", lineStat(doc.getText(), raw)) : null);
@@ -356,15 +335,14 @@ async function compileToFile(mode, show, save) {
 
 async function viewCompile(mode) {
   return runOnDoc(mode, {}, (raw, doc) =>
-    // Preview language depends on mode: cl/t emit mlog assembly, r emits
-    // Bang source (mdtlbl). Default to mlog for any other intermediate output.
     openSide(raw, mode === "r" ? "mdtlbl" : "mlog", `${t("label.tagCode")}  ${lineStat(doc.getText(), raw)}`));
 }
 
 async function copyResult() {
   return runOnDoc("cl", {}, async (raw, doc) => {
     await vscode.env.clipboard.writeText(buildOutput(raw, doc));
-    showSuccess(t("msg.copied", lineStat(doc.getText(), raw)));
+    const s = lineStat(doc.getText(), raw);
+    flashStatus("ok", t("msg.copied", s), s);
   });
 }
 
@@ -379,7 +357,8 @@ async function formatFile() {
     const e = new vscode.WorkspaceEdit();
     e.replace(doc.uri, new vscode.Range(doc.positionAt(0), doc.positionAt(full.length)), result);
     await vscode.workspace.applyEdit(e);
-    showSuccess(t("msg.formatComplete", lineStat(full, result)));
+    const s = lineStat(full, result);
+    flashStatus("ok", t("msg.formatComplete", s), s);
   });
 }
 
@@ -466,11 +445,7 @@ async function runCompile(doc, mode, silent) {
     return showError(doc, err, silent, mode);
   } finally {
     compiling = false;
-    if (pendingAutoDoc) {
-      const d = pendingAutoDoc;
-      pendingAutoDoc = null;
-      autoCompile(d);
-    }
+    if (pendingAutoDoc) { const d = pendingAutoDoc; pendingAutoDoc = null; autoCompile(d); }
   }
 }
 
@@ -490,7 +465,6 @@ function showError(doc, err, silent, mode) {
   } else {
     flashStatus("error", t("msg.compileFailedShort", modeLabel, raw.split("\n")[0].slice(0, 80)));
   }
-  // Diagnostics are owned by bangls (mdtlbl LSP); this extension only logs.
 }
 
 function deactivate() {
