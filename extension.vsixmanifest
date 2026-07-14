@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
+  <Metadata>
+    <Identity Id="mdtlbl-r" Version="0.1.0" Publisher="codex" Language="zh-CN"/>
+    <DisplayName>Mindustry Logic Bang Language Runner</DisplayName>
+    <Description>Mindustry Logic Bang Language 编译运行工具集，配合 mdtlbl 语法高亮使用</Description>
+    <Categories>Other</Categories>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Code"/>
+  </Installation>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.Code.Manifest" Path="extension/package.json"/>
+  </Assets>
+</PackageManifest>

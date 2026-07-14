@@ -1,0 +1,123 @@
+{
+  "name": "mdtlbl-r",
+  "displayName": "%displayName%",
+  "description": "%description%",
+  "version": "0.1.0",
+  "publisher": "codex",
+  "engines": { "vscode": "^1.80.0" },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VT4JIGMQG/mdtlbl-r.git"
+  },
+  "bugs": {
+    "url": "https://github.com/VT4JIGMQG/mdtlbl-r/issues"
+  },
+  "homepage": "https://github.com/VT4JIGMQG/mdtlbl-r#readme",
+  "categories": ["Other"],
+  "activationEvents": [
+    "onLanguage:mdtlbl",
+    "onLanguage:mlog",
+    "onCommand:bang.actions",
+    "onCommand:bang.decompile",
+    "onCommand:bang.format",
+    "onCommand:bang.importFromMlog",
+    "onCommand:bang.selectCompiler"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "在不受信任的工作区中，本扩展会忽略工作区级别的编译器路径、不扫描工作区根目录的可执行文件，仅使用用户全局配置的编译器或手动选择的编译器。"
+    }
+  },
+  "main": "./src/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "mlog",
+        "extensions": [".mlog"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "commands": [
+      { "command": "bang.compile",              "title": "%cmd.compile%" },
+      { "command": "bang.compileAndShow",       "title": "%cmd.compileAndShow%" },
+      { "command": "bang.compileViewTag",       "title": "%cmd.compileViewTag%" },
+      { "command": "bang.copyToClipboard",      "title": "%cmd.copyToClipboard%" },
+      { "command": "bang.decompile",            "title": "%cmd.decompile%" },
+      { "command": "bang.format",               "title": "%cmd.format%" },
+      { "command": "bang.actions",              "title": "%cmd.actions%",  "icon": "$(play)" },
+      { "command": "bang.importFromMlog",       "title": "%cmd.importFromMlog%" },
+      { "command": "bang.importFromClipboard",  "title": "%cmd.importFromClipboard%" },
+      { "command": "bang.selectCompiler",       "title": "%cmd.selectCompiler%" }
+    ],
+    "keybindings": [
+      { "command": "bang.actions", "key": "ctrl+f1" }
+    ],
+    "submenus": [
+      { "id": "bang.submenu",     "label": "Bang" },
+      { "id": "bang.mlogSubmenu", "label": "Bang" }
+    ],
+    "menus": {
+      "editor/context": [
+        { "submenu": "bang.submenu",       "when": "editorLangId == mdtlbl",                "group": "navigation" },
+        { "submenu": "bang.mlogSubmenu",   "when": "resourceExtname == .mlog",              "group": "navigation" },
+        { "command": "bang.importFromClipboard", "when": "editorFocus",                     "group": "navigation@99" }
+      ],
+      "editor/title": [
+        { "command": "bang.actions", "when": "editorLangId == mdtlbl || resourceExtname == .mlog || resourceExtname == .mdtlbl", "group": "navigation" }
+      ],
+      "bang.submenu": [
+        { "command": "bang.compile" },
+        { "command": "bang.compileAndShow" },
+        { "command": "bang.compileViewTag" },
+        { "command": "bang.copyToClipboard" }
+      ],
+      "bang.mlogSubmenu": [
+        { "command": "bang.decompile" },
+        { "command": "bang.format" },
+        { "command": "bang.importFromMlog" }
+      ],
+      "commandPalette": [
+        { "command": "bang.compile",              "when": "editorLangId == mdtlbl" },
+        { "command": "bang.compileAndShow",       "when": "editorLangId == mdtlbl" },
+        { "command": "bang.compileViewTag",       "when": "editorLangId == mdtlbl" },
+        { "command": "bang.copyToClipboard",      "when": "editorLangId == mdtlbl" },
+        { "command": "bang.decompile",            "when": "resourceExtname == .mlog" },
+        { "command": "bang.format",               "when": "resourceExtname == .mlog" },
+        { "command": "bang.importFromMlog",       "when": "resourceExtname == .mlog" },
+        { "command": "bang.importFromClipboard" },
+        { "command": "bang.selectCompiler" }
+      ]
+    },
+    "configuration": {
+      "title": "%config.title%",
+      "properties": {
+        "bang.compilerPath": {
+          "type": "string",
+          "default": "",
+          "description": "%config.compilerPath.desc%"
+        },
+        "bang.autoCompile": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.autoCompile.desc%"
+        },
+        "bang.embedSource": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.embedSource.desc%"
+        },
+        "bang.compileTimeout": {
+          "type": "number",
+          "default": 3000,
+          "description": "%config.compileTimeout.desc%"
+        },
+        "bang.autoSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "%config.autoSave.desc%"
+        }
+      }
+    }
+  }
+}

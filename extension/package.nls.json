@@ -1,0 +1,20 @@
+{
+  "displayName": "Mindustry Logic Bang Language Runner",
+  "description": "Mindustry Logic Bang Language compiler runner, used with mdtlbl syntax highlighting",
+  "cmd.compile": "Bang: Compile and Save (c+l)",
+  "cmd.compileAndShow": "Bang: Compile and Preview",
+  "cmd.compileViewTag": "Bang: View Tag Code (t)",
+  "cmd.copyToClipboard": "Bang: Compile and Copy to Clipboard",
+  "cmd.decompile": "Bang: Decompile (r)",
+  "cmd.format": "Bang: Format (i)",
+  "cmd.actions": "Bang",
+  "cmd.importFromMlog": "Bang: Restore Source from Embedded Data",
+  "cmd.importFromClipboard": "Bang: Import Source from Clipboard",
+  "cmd.selectCompiler": "Bang: Select Compiler…",
+  "config.title": "Bang Compiler",
+  "config.compilerPath.desc": "Path to the Bang compiler binary. Leave empty to auto-detect.",
+  "config.autoCompile.desc": "Automatically compile .mdtlbl files on save",
+  "config.embedSource.desc": "Embed source code at the end of .mlog output for reverse recovery",
+  "config.compileTimeout.desc": "Compile timeout in milliseconds.",
+  "config.autoSave.desc": "Also generate .mlog file when auto-compiling"
+}

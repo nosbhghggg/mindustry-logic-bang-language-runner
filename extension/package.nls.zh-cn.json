@@ -1,0 +1,20 @@
+{
+  "displayName": "Mindustry Logic Bang Language Runner",
+  "description": "Mindustry Logic Bang Language 编译运行工具集，配合 mdtlbl 语法高亮使用",
+  "cmd.compile": "Bang: 编译并保存 (c+l)",
+  "cmd.compileAndShow": "Bang: 编译并预览",
+  "cmd.compileViewTag": "Bang: 查看标签代码 (t)",
+  "cmd.copyToClipboard": "Bang: 编译并复制到剪贴板",
+  "cmd.decompile": "Bang: 反编译 (r)",
+  "cmd.format": "Bang: 格式化 (i)",
+  "cmd.actions": "Bang",
+  "cmd.importFromMlog": "Bang: 从嵌入数据恢复源码",
+  "cmd.importFromClipboard": "Bang: 从剪贴板导入源码",
+  "cmd.selectCompiler": "Bang: 选择编译器…",
+  "config.title": "Bang 编译器",
+  "config.compilerPath.desc": "Bang 编译器路径，留空则自动查找",
+  "config.autoCompile.desc": "保存时自动编译 .mdtlbl 文件",
+  "config.embedSource.desc": "编译时将源码嵌入 .mlog 末尾，用于逆向恢复",
+  "config.compileTimeout.desc": "编译超时时间（毫秒）",
+  "config.autoSave.desc": "自动编译时是否同时生成 .mlog 文件"
+}
