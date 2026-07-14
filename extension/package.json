@@ -3,7 +3,7 @@
   "displayName": "%displayName%",
   "description": "%description%",
   "version": "0.1.0",
-  "publisher": "codex",
+  "publisher": "mdtlbl-r",
   "engines": { "vscode": "^1.80.0" },
   "repository": {
     "type": "git",
